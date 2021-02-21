@@ -1,0 +1,26 @@
+{
+    "emailError": "Неверный email",
+    "loginTitle":"Вход",
+    "loginPageTitle": "Страница для входа",
+    "login.remember-me": "Запомнить меня",
+    "login.singin": "Войти",
+    "Login": "Логин",
+    "Password": "Пароль",
+    "user.profile": "Профиль",
+    "btn.sing-out": "Выход",
+
+    "admin.post": "Посты",
+    "admin.post.all":"Все посты",
+    "admin.post.create":"Новый пост", 
+
+    "admin.product": "Продукты",
+    "admin.product.all":"Список товаров",
+    "admin.product.create":"Добавить новый товар",
+
+    "admin.appbar-title.home": "Привет",   
+
+    "admin.page.home.title": "Админ-панель — гланая страница",
+    "admin.page.product.create.title": "Новый продукт",
+
+    "admin.btn.more": "Больше"
+}

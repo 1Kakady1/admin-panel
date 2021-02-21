@@ -1,0 +1,36 @@
+.DS_Store
+node_modules
+/server/dist
+/server/node_modules
+/client/node_modules
+/admin-ui/node_modules
+/server/build
+/admin-ui/build
+ngrok.exe
+ngrok http [port] -host-header=localhost[port].txt
+
+# local env files
+.env.local
+.env.*.local
+.env
+# Log files
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+yarn.lock
+/client/package-lock.lock
+/client/yarn.lock
+/server/package-lock.lock
+/server/yarn.lock
+/admin-ui/package-lock.lock
+/admin-ui/yarn.lock
+
+# Editor directories and files
+.idea
+.vscode
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?

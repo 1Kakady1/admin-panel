@@ -1,0 +1,28 @@
+{
+    "emailError": "Invalid email",
+    "loginTitle":"LOGIN",
+    "loginPageTitle": "Login page",
+    "login.remember-me": "Remember me",
+    "login.singin": "Sing in",
+    "Login": "Login",
+    "Password": "Password",
+    "user.profile": "Profile",
+    "btn.sing-out": "Sing out",
+
+    "admin.post": "Posts",
+    "admin.post.all":"All post",
+    "admin.post.create":"Add post",
+
+    "admin.product": "Products",
+    "admin.product.all":"All Product",
+    "admin.product.create":"Add product",
+
+    "admin.appbar-title.home": "Hello", 
+    
+    "admin.page.home.title": "Admin — home page",
+    "admin.page.product.create.title":"Create product",
+
+    "admin.btn.more": "More"
+    
+    
+}

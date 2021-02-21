@@ -1,0 +1,11 @@
+{
+  "dependencies": {},
+  "scripts": {
+    "start:ui": "cd admin-ui && npm run start",
+    "start:build": "cd admin-ui && npm run build",
+    "server:tsc": "cd server && npm run dev",
+    "server:dev": "cd server && npm run dev",
+    "server:prod": "cd server && npm run prod"
+  },
+  "devDependencies": {}
+}
