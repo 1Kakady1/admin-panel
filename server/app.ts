@@ -11,7 +11,7 @@ const jsonUseOption:any = {
 }
 
 app.use(express.json(jsonUseOption));
-app.use(express.static(path.join(__dirname,"..","build","static-public")));
+app.use(express.static(path.join(__dirname,"build","public")));
 app.use(cookieParser());
 app.use(useragent.express());
 

@@ -11,10 +11,11 @@ export interface IUser{
 }
 
 export interface ILoginData{
-    token: string; 
+    accessToken: string; 
     email: string; 
     preview: string; 
     refreshToken: string;
+    name: string;
 }
 
 export interface IUserActionProps{

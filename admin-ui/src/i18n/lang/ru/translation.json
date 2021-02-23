@@ -22,5 +22,9 @@
     "admin.page.home.title": "Админ-панель — гланая страница",
     "admin.page.product.create.title": "Новый продукт",
 
-    "admin.btn.more": "Больше"
+    "admin.btn.more": "Больше",
+
+    "error.req": "Required",
+    "error.email":"Invalid email address",
+    "error.min": "Password length must be greater than 4"
 }

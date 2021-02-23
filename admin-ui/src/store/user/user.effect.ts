@@ -3,11 +3,12 @@ import { ActionsObservable, ofType } from 'redux-observable';
 import { switchMap, map, withLatestFrom } from 'rxjs/operators';
 import { Observable} from 'rxjs';
 
-import { userSingIn, checkUserRemember } from '../../services/api';
+import { userSingIn, checkUserRemember, userLogout } from '../../services/api';
 import { toUserActions} from './user.reducer';
 import { toUser } from './user.selector';
-import { setCookie } from '../../helpers/cookies';
+import { deleteCookie, setCookie } from '../../helpers/cookies';
 import { TOKEN } from '../../constants/key.const';
+import { toSettingsActions } from '../settings/settings.reducer';
 
 
 export const userSetEffect = (
@@ -23,7 +24,8 @@ export const userSetEffect = (
             return userSingIn({email: toUser.email(state), password: toUser.password(state) || ''})
             .pipe(
                 map((response) => {
-                    if (response.error) {toUserActions.loginActionRequestFailed(
+                    if (response.error) {
+                        return toUserActions.loginActionRequestFailed(
                             response.error.toString()
                         );
                     }
@@ -31,7 +33,7 @@ export const userSetEffect = (
                     if (response.data){
 
                         setCookie(TOKEN.REFRESH_TOKEN,response.data.refreshToken,80000);
-                        localStorage.setItem(TOKEN.TOKEN, response.data.token);
+                        localStorage.setItem(TOKEN.TOKEN, response.data.accessToken);
 
                         return toUserActions.loginActionRequestSuccess(
                             response?.data
@@ -45,10 +47,30 @@ export const userSetEffect = (
         })
 );
 
+export const userLogoutEffect = (
+    action$: ActionsObservable<Action>,
+): Observable<Action> =>
+    action$.pipe(
+        ofType(
+            toUserActions.logoutActionRequest,
+        ),
+        switchMap(() => {
+            return userLogout()
+            .pipe(
+                map((response) => {
+
+                    deleteCookie(TOKEN.REFRESH_TOKEN);
+                    localStorage.removeItem(TOKEN.TOKEN);
+
+                    return toUserActions.logoutActionRequestSuccess()
+                })
+            );
+        })
+);
+
 export const checkUserRememberSetEffect = (
     action$: ActionsObservable<Action>,
-    state: Observable<Record<string, unknown>>
-): Observable<Action> =>
+): Observable<Action | Action[]> =>
     action$.pipe(
         ofType(
             toUserActions.loginRememberActionRequest.type,
@@ -56,21 +78,25 @@ export const checkUserRememberSetEffect = (
         switchMap(() => {
             return checkUserRemember()
             .pipe(
-                map((response) => {
-                    if (response.error) {toUserActions.loginActionRequestFailed(
-                            response.error.toString()
-                        );
+                switchMap((response) => {
+                    if (response.error) {
+                        return [
+                            toUserActions.loginActionRequestFailed(response.error.toString()),
+                            toSettingsActions.initAction(false),
+                        ];
                     }
 
                     if (response.data){
-                        localStorage.setItem(TOKEN.TOKEN, response.data.token);
-                        return toUserActions.loginActionRequestSuccess(
-                            response?.data
-                        );
+                        localStorage.setItem(TOKEN.TOKEN, response.data.accessToken);
+                        return [
+                            toUserActions.loginActionRequestSuccess(response?.data),
+                            toSettingsActions.initAction(false)
+                        ];
                     }
-                    return toUserActions.loginActionRequestFailed(
-                        'Data is empty'
-                    );
+                    return [
+                        toUserActions.loginActionRequestFailed('Data is empty'),
+                        toSettingsActions.initAction(false)
+                    ];
                 })
             );
         })

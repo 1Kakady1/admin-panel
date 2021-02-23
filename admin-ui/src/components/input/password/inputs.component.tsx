@@ -67,7 +67,7 @@ const InputPassword = ({
             />
 
             <span className={classes.formControlError}>
-                {errors && touched && errors}
+                {errors && touched && t(errors)}
             </span>
         </FormControl>
     );

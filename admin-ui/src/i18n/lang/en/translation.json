@@ -22,7 +22,11 @@
     "admin.page.home.title": "Admin — home page",
     "admin.page.product.create.title":"Create product",
 
-    "admin.btn.more": "More"
+    "admin.btn.more": "More",
+
+    "error.req": "Required",
+    "error.email":"Invalid email address",
+    "error.min": "Password length must be greater than 4"
     
     
 }

@@ -6,7 +6,6 @@ import {Products} from "./page/products/products.component"
 import { ThemeProvider } from '@material-ui/core/styles';
 import {theme} from "./constants/theme.const"
 import { useDispatch, useSelector } from 'react-redux';
-import {getCookie} from "./helpers/cookies"
 import { ConnectedRouter } from 'connected-react-router';
 import { browserHistory } from './store';
 import {
@@ -18,76 +17,79 @@ import {
 // global style animation
 import './assets/sass/reset.sass'
 import './assets/sass/animation.sass'
-import { toUserActions } from './store/user/user.reducer';
 import { toUser } from './store/user/user.selector';
+import { SplashScreen } from './components/splash-screen/splash-screen.component';
+import { getCookie } from './helpers/cookies';
 import { TOKEN } from './constants/key.const';
+import { toSettingsActions } from './store/settings/settings.reducer';
+import { toSettings } from './store/settings/settings.selector';
 
 export  const App = () => {
 
+  const refreshToken = getCookie(TOKEN.REFRESH_TOKEN);
+  const tokenAccess = localStorage.getItem(TOKEN.TOKEN);
   const isAuth = useSelector(toUser.isAuth)
   const dispatch = useDispatch();
+  const isInit = useSelector(toSettings.isInit)
 
   useEffect(() => {
-    
-    const refreshToken = getCookie(TOKEN.REFRESH_TOKEN);
-    const tokenAccess = localStorage.getItem(TOKEN.TOKEN);
-
-    if(refreshToken && tokenAccess){
-      dispatch(toUserActions.loginRememberActionRequest())
-    }
-
     setTimeout(()=>{
        //@ts-ignore
       document.querySelector('body').style.overflow = '';
+      if(!refreshToken || !tokenAccess){
+        dispatch(toSettingsActions.initAction(false))
+      }
     },200)
-    
   }, []);
-  
-  console.log("user=====>",isAuth)
+
   return (
       <ThemeProvider theme={theme}>
-          <ConnectedRouter  history={browserHistory}>
-            <div className="App">
+          <SplashScreen isLoading={isInit} />
+          {
+          !isInit &&
+            <ConnectedRouter  history={browserHistory}>
+              <div className="App">
 
-              {
-              isAuth === true ? 
+                {
+                isAuth === true ? 
 
-                <Switch>
-                    <Route exact key={"home-page"} path="/admin">
-                      <HomeContainer />
-                    </Route>
+                  <Switch>
+                      <Route exact key={"home-page"} path="/admin">
+                        <HomeContainer />
+                      </Route>
 
-                    <Route exact key={"product-page"} path="/admin/products">
-                        <Products />
-                    </Route>
+                      <Route exact key={"product-page"} path="/admin/products">
+                          <Products />
+                      </Route>
 
-                    <Route exact key={"product-page"} path="/admin/products/create">
-                      <ProductCreateContainer />
-                    </Route>
+                      <Route exact key={"product-page"} path="/admin/products/create">
+                        <ProductCreateContainer />
+                      </Route>
 
-                    <Route exact key={"Profile-page"} path="/admin/profile">
-                      <h1>Profile</h1>
-                    </Route>
-                    
-                    <Route exact key={"post-view-page"} path="/admin/products/:id">
+                      <Route exact key={"Profile-page"} path="/admin/profile">
+                        <h1>Profile</h1>
+                      </Route>
                       
+                      <Route exact key={"post-view-page"} path="/admin/products/:id">
+                        
+                      </Route>
+
+                      <Redirect to={{pathname: "/admin",}} />
+                  </Switch> 
+
+                    : 
+
+                  <Switch>
+                    <Route path="/admin/login">
+                      <LoginContainer />
                     </Route>
-
-                    <Redirect to={{pathname: "/admin",}} />
-                </Switch> 
-
-                  : 
-
-                <Switch>
-                  <Route path="/admin/login">
-                    <LoginContainer />
-                  </Route>
-                  <Redirect to={{pathname: "/admin/login",}} />
-                </Switch>
-
-              }
-            </div>
-        </ConnectedRouter>
+                    <Redirect to={{pathname: "/admin/login",}} />
+                  </Switch>
+                  
+                }
+              </div>
+          </ConnectedRouter>
+        }
       </ThemeProvider>
   );
 }

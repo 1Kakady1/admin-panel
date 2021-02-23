@@ -9,7 +9,7 @@ export const UserInfoSelectContainer = ({zIndexMenu=1300}:IUserInfoSelectContain
     
     const preview = useSelector(toUser.preview) || "";
     const dispatch = useDispatch();
-    const onSingOut = () => dispatch(toUserActions.logout());
+    const onSingOut = () => dispatch(toUserActions.logoutActionRequest());
 
     return <UserInfoSelect 
         zIndexMenu={zIndexMenu}

@@ -24,3 +24,7 @@ export const getCookie = (name:string) => {
     );
     return matches ? decodeURIComponent(matches[1]) : undefined;
 };
+
+export const deleteCookie = (name:string)=> {
+    setCookie(name, "", -1)
+}

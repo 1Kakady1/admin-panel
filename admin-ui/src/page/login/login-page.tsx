@@ -1,6 +1,6 @@
 import React from "react"
 import { Formik } from 'formik';
-import { Button, Checkbox } from '@material-ui/core';
+import { Button, Fade} from '@material-ui/core';
 import {Helmet} from "react-helmet";
 
 import {useTranslation} from 'react-i18next';
@@ -10,43 +10,23 @@ import {InputPassword} from '../../components/input/password/inputs.component'
 import { ChangeLang} from '../../i18n/components/i18n-change.component'
 
 import {useStylesLoginPage} from "./login-page.styles"
-import { IUser } from "../../store/user/user.model";
-import {IErrorInput,IFormValue} from './login-page.model'
-
-import {RegExpEmail} from '../../constants/regexp.const'
-import {formError} from '../../constants/strings.const'
+import {IFormValue} from './login-page.model'
+import { loginSchema } from "./login-page.schema";
 
 export const Login = ({
-    onLogin
+    onLogin,
+    error,
+    isLoading
 }:{
-    onLogin: (value:{email: string, password: string}) => void
+    onLogin: (value:{email: string, password: string}) => void;
+    error: string;
+    isLoading: boolean;
 }) =>{
 
     const cl = useStylesLoginPage();
-    const [checked, setChecked] = React.useState<boolean>(false);
     const [t] = useTranslation();
     
-    const errorInput = (values: IFormValue): IErrorInput => {
-
-        const errors: IErrorInput = {};
-
-        if (!values.email) {
-            errors.email = formError.req;
-        } else if (
-            !RegExpEmail.test(values.email)
-        ) {
-            errors.email = t('emailError');
-        }
-
-        if (!values.password) {
-            errors.password = formError.req;
-        } else if (values.password.length < 4) {
-            errors.password = formError.lenMin;
-        }
-        return errors;
-    };
-
-    const handelSubmit = (values: IFormValue,{ setSubmitting }: { setSubmitting: (isSubmitting: boolean) => void }): void => {
+    const handelSubmit = (values: IFormValue): void => {
         onLogin({email: values.email, password: values.password});
     };
 
@@ -66,9 +46,9 @@ export const Login = ({
             
                 <Formik
                     initialValues={{ email: '', password: '' }}
-                    validate={(values) => errorInput(values)}
-                    onSubmit={(values, { setSubmitting }) => {
-                        handelSubmit(values, { setSubmitting });
+                    validationSchema={loginSchema}
+                    onSubmit={(values) => {
+                        handelSubmit(values);
                     }}
                 >
                 {({
@@ -78,7 +58,6 @@ export const Login = ({
                     handleChange,
                     handleBlur,
                     handleSubmit,
-                    isSubmitting
                 }) => (
                     <form  onSubmit={handleSubmit} className={cl.form} autoComplete="off">
 
@@ -113,26 +92,16 @@ export const Login = ({
                                 <Button
                                     variant="contained"
                                     type="submit"
-                                    disabled={isSubmitting}
+                                    disabled={isLoading}
                                     className={`${cl.singIn} bounce-in-fwd anim-duration_2s delay_2s`}
                                 >
                                     {t("login.singin")}
                                 </Button>
-                                {/* <div className={`${cl.rememberMe} bounce-in-fwd anim-duration_2s delay_2_2s`}>
-                                    <Checkbox
-                                        checked={checked}
-                                        onChange={()=>{setChecked(!checked)}}
-                                        color="primary"
-                                        inputProps={{ 'aria-label': 'secondary checkbox' }}
-                                    />
-                                    <span>
-                                        {t("login.remember-me")}
-                                    </span>
-                                </div> */}
-
+                                <Fade in={!!error}>
+                                    <div className={cl.error}>{error}</div>
+                                </Fade>
                             </div>
 
-                            
                         </div>
                     </form>
                 )}

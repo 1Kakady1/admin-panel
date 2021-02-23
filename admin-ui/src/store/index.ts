@@ -4,6 +4,9 @@ import { slices } from './slices';
 import rootEpic from './epics';
 import { connectRouter, routerMiddleware } from 'connected-react-router';
 import { createBrowserHistory } from 'history';
+import { getCookie } from '../helpers/cookies';
+import { TOKEN } from '../constants/key.const';
+import { toUserActions } from './user/user.reducer';
 
 const epicMiddleware = createEpicMiddleware({
     dependencies: {
@@ -29,5 +32,12 @@ export const store = configureStore({
 });
 //@ts-ignore
 epicMiddleware.run(rootEpic);
+
+const refreshToken = getCookie(TOKEN.REFRESH_TOKEN);
+const tokenAccess = localStorage.getItem(TOKEN.TOKEN);
+
+if(refreshToken && tokenAccess){
+    store.dispatch(toUserActions.loginRememberActionRequest())
+}
 
 

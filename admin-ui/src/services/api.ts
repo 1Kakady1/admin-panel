@@ -1,17 +1,10 @@
-import axios from "axios";
-import { from, Observable, of } from "rxjs";
+import { from, Observable, of, throwError } from "rxjs";
 import { catchError, switchMap } from "rxjs/operators";
 import { TOKEN } from "../constants/key.const";
 import {getCookie} from "../helpers/cookies"
 import { ILoginData } from "../store/user/user.model";
 
-const lang:string = getCookie('lang') !== undefined ? getCookie('lang') as string : "ru";
-
-const instance = axios.create({
-    baseURL: 'http://localhost:3000/api/admin',
-    timeout: 10000,
-    headers: {'X-Custom-Header': 'foobar'},
-});
+const API_PREFIX = "/api/admin";
 
 export interface IResponse<TMeta, TError, TData> {
     meta?: TMeta;
@@ -19,32 +12,74 @@ export interface IResponse<TMeta, TError, TData> {
     data?: TData;
 }
 
+const getToken = () =>{
+
+  const refreshToken = getCookie(TOKEN.REFRESH_TOKEN);
+  const accessToken = localStorage.getItem(TOKEN.TOKEN);
+
+  return {
+    refreshToken,
+    accessToken
+  }
+
+}
+
+function baseRequest<TMeta, TError, TData, TBody extends object>(
+  url: string,
+  method: string,
+  body: TBody
+): Observable<IResponse<TMeta, TError, TData>> {
+  const lang:string = getCookie('lang') !== undefined ? getCookie('lang') as string : "ru";
+  return from(
+      window.fetch(`${API_PREFIX}/${url}`, {
+          method: method,
+          body: JSON.stringify({...body,...getToken(), lang}),
+          headers: {
+              'Content-Type': 'application/json',
+          }
+      })
+  ).pipe(
+      switchMap((response) =>
+          parseResponse<TMeta, TError, TData>(response)
+      ),
+      catchError((err: TError) =>
+          requestError<TMeta, TError, TData>(err)
+      )
+  );
+  
+  function parseResponse<TMeta, TError, TData>(
+    response: Response
+  ): Observable<IResponse<TMeta, TError, TData>> {
+    if (response.status === 200) {
+        return from(response.json());
+    } else {
+        return throwError(response.statusText);
+    }
+  }
+  
+  function requestError<TMeta, TError, TData>(
+    err: TError
+  ): Observable<IResponse<TMeta, TError, TData>> {
+    return of({
+        error: err
+    });
+  }
+
+}
+
 export const userSingIn = ({email, password}: {email: string, password: string}): Observable<IResponse<{}, string, ILoginData>> =>{
-    return from(instance.post('/auth/login', {email, password})).pipe(
-      switchMap((res) => {
-        console.log("res", res)
-        const {email,preview,accessToken, refreshToken} = res.data
-        return of({data: {token: accessToken, email, preview, refreshToken}})
-      }),
-      catchError((e)=> of({error: e}))
-    )
+    return baseRequest('/auth/login',"POST" ,{email, password})
 }
 
 export const checkUserRemember = (): Observable<IResponse<{}, string, ILoginData>> =>{
-
-  const refreshToken = getCookie(TOKEN.REFRESH_TOKEN);
-  const tokenAccess = localStorage.getItem(TOKEN.TOKEN);
-
-  return from(instance.post('/auth/remember-me', {refreshToken, accessToken: tokenAccess})).pipe(
-    switchMap((res) => {
-      const {email,preview,accessToken, refreshToken} = res.data
-      return of({data: {token: accessToken, email, preview, refreshToken}})
-    }),
-    catchError((e)=> of({error: e}))
-  )
+  return baseRequest('/auth/remember-me',"POST" ,{});
 }
 
-export const getHomeData = (_token:string="test",location:string=lang) =>{
-    return instance.post('/home', {_token,location})
+export const userLogout = (): Observable<IResponse<{}, string, ILoginData>> =>{
+  return baseRequest('/auth/logout',"POST" ,{});
 }
+
+// export const getHomeData = (_token:string="test",location:string=lang) =>{
+//     return instance.post('/home', {_token,location})
+// }
 

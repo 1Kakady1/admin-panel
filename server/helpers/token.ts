@@ -4,6 +4,7 @@ import { Tokens } from '../models/tokens';
 import { v4 as uuidv4 } from 'uuid';
 import { Details } from 'express-useragent';
 import { Request, Response, NextFunction } from 'express';
+import { User } from '../models/users';
 var os = require('os');
 var ip = require('ip');
 dotenv.config();
@@ -14,7 +15,7 @@ export interface IAccessTokenData{
 }
 
 export const  getAccessToken = (payload:IAccessTokenData) => {
-    return sign({userId: payload.userId}, (process.env['TOKEN_SECRET'] as string), { expiresIn: '15min' });
+    return sign({userId: payload.userId, email: payload.email}, (process.env['TOKEN_SECRET'] as string), { expiresIn: '15min' });
 }
 
 export const getRefreshToken = async (payload:IAccessTokenData, useragent?: Details) => {
@@ -49,24 +50,38 @@ export const verifyToken = (req: Request, res: Response, next: NextFunction) => 
     let {refreshToken, accessToken} = req.body;
 
     if (!refreshToken || !accessToken)
-      return res.status(403).send({ auth: false, message: 'No token provided.' });
+      return res.status(403).send({ error: 'No token provided.' });
     
 
 
     verify( accessToken , process.env["TOKEN_SECRET"] as string, async function(err: VerifyErrors | null, decoded: any) {
-
+        
+        let email:string = decoded && decoded.email || "";
+        let userId:number = decoded && decoded.userId || 0;
+        
         if (err) {
             const token = await Tokens.findOne({where: {refreshToken}})
+            //TODO: check user ip and ect
             if(token && new Date(token.expired_at) > new Date()){
-                req.body.accessToken = getAccessToken({userId: decoded.userId, email: decoded.email});
+
+                const user = await User.findOne({where: { id: token.user_id }});
+
+                if(user){
+                    req.body.accessToken = getAccessToken({userId: user.id, email: user.email});
+                    email = user.email;
+                    userId = user.id;
+                } else {
+                    return res.status(500).send({ error: 'Failed to authenticate token.' });
+                }
+               
             }else{
-                return res.status(500).send({ auth: false, message: 'Failed to authenticate token.' });
+                return res.status(500).send({ error: 'Failed to authenticate token.' });
             }
             
         }
-
-        req.body.email = decoded.email;
-        req.body.userId = decoded.userId;
+        
+        req.body.email = email;
+        req.body.userId = userId;
 
         next();
       });

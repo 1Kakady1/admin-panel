@@ -63,7 +63,9 @@ export const useStylesLoginPage = makeStyles((theme: Theme) =>
             display: "flex",
             alignItems: 'center',
             justifyContent: "space-between",
-            width: '100%'
+            width: '100%',
+            position: "relative",
+            marginBottom: '20px'
         },
         rememberMe:{
             display: "flex",
@@ -80,6 +82,14 @@ export const useStylesLoginPage = makeStyles((theme: Theme) =>
                 backgroundColor: color_2,
                 color: "#fff"
             }
+        },
+        error:{
+            color: "red",
+            position: "absolute",
+            width: "100%",
+            bottom: "-20px",
+            right: "0px",
+            fontSize: "14px"
         }
         
     })

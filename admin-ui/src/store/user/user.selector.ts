@@ -36,5 +36,8 @@ const isLoading = createSelector(
     userSelector,
     ({ isLoading }) => isLoading
 );
-
-export const toUser = {name,isLoading, isAuth, email, password, preview};
+const error = createSelector(
+    userSelector,
+    ({ error  }) => error
+);
+export const toUser = {name,isLoading, error , isAuth, email, password, preview};

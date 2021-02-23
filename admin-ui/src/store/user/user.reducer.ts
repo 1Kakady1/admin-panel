@@ -1,15 +1,7 @@
-import { createSlice,PayloadAction } from '@reduxjs/toolkit'
+import { createAction, createSlice,PayloadAction } from '@reduxjs/toolkit'
 import { USER_KEY } from './user.const';
 import {userInit} from './user.init'
-import { ILoginData, IUser,IUserActionProps } from './user.model'
-
-const loginReducer = (state:IUser,action:PayloadAction<IUserActionProps>) =>{
-  state.isAuth = true;
-}
-
-const logoutReducer = (state:IUser)=>{
-    state.isAuth = false;
-}
+import { ILoginData, IUser } from './user.model'
 
 const loginActionRequest = (state:IUser, {payload}:{payload: {email: string, password: string}})=>{
   state.isLoading= true;
@@ -25,29 +17,35 @@ const loginActionRequestSuccess = (state:IUser, {payload}:{payload: ILoginData})
   state.isLoading= false;
   state.isAuth = true;
   state.password = "";
-  state.token = payload.token;
   state.preview = payload.preview;
   state.email = payload.email;
+  state.name = payload.name;
 }
 const loginActionRequestFailed = (state:IUser, {payload}:{payload: string})=>{
   state.isLoading = false;
   state.error = payload;
 }
 
+const logoutActionRequestSuccess = ()=>{
+  return {
+    ...userInit,
+  }
+}
+
 export const userSlice = createSlice({
   name:  USER_KEY,
   initialState: userInit,
   reducers: {
-    login: loginReducer,
-    logout: logoutReducer,
     loginActionRequest,
     loginActionRequestSuccess,
     loginActionRequestFailed,
-    loginRememberActionRequest
+    loginRememberActionRequest,
+    logoutActionRequestSuccess,
   }
 
 })
 
 export const toUserActions = {
-  ...userSlice.actions
+  ...userSlice.actions,
+  logoutActionRequest: createAction( 'userKey/logout')
 };

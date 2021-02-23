@@ -1,9 +1,10 @@
 import { combineEpics } from "redux-observable";
-import { checkUserRememberSetEffect, userSetEffect } from "./user/user.effect";
+import { checkUserRememberSetEffect, userLogoutEffect, userSetEffect } from "./user/user.effect";
 
 const rootEpic = combineEpics(
     userSetEffect,
-    checkUserRememberSetEffect
+    checkUserRememberSetEffect,
+    userLogoutEffect,
 );
 
 export default rootEpic
